@@ -10,15 +10,15 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Configuração do Pool de conexão com a URI do Supabase
+// Configuracaoo do Pool de conexao com a URI do Supabase
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false // Necessário para aceitar a conexão SSL do Supabase
+    rejectUnauthorized: false // Necessario para aceitar a conexao SSL do Supabase
   }
 });
 
-// Testa a conexão e garante que a tabela 'alunos' seja criada no PostgreSQL
+// Testa a conexao e garante que a tabela 'alunos' seja criada no PostgreSQL
 pool.query(`
   CREATE TABLE IF NOT EXISTS alunos (
     id SERIAL PRIMARY KEY,
@@ -49,7 +49,7 @@ app.post('/alunos', async (req, res) => {
   const { nome } = req.body;
   
   if (!nome) {
-    return res.status(400).json({ erro: 'O campo nome é obrigatório' });
+    return res.status(400).json({ erro: 'O campo nome e obrigatorio' });
   }
 
   try {
