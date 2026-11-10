@@ -36,11 +36,27 @@ connection.connect((err) => {
         nome VARCHAR(255) NOT NULL
       )`;
       connection.query( createTableQuery, (err) => {
+          if (err) {
+              console.error('Erro ao criar tabela: ', err.stack );
+              return;
+            }
+        } );
+
+    const createTableBagagemQuery = `
+        CREATE TABLE IF NOT EXISTS itens_bagagem (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nome_item VARCHAR(255) NOT NULL,
+        clima VARCHAR(50),
+        perfil VARCHAR(50),
+        quantidade_por_dia INT DEFAULT 1
+        )`;
+    
+        connection.query(createTableBagagemQuery, (err) => {
         if (err) {
-          console.error('Erro ao criar tabela: ', err.stack );
-          return;
+        console.error('Erro ao criar tabela: ', err.stack);
+        return;
         }
-      } );
+    });
 });
 
 app.get('/alunos', (req, res) => {
@@ -52,7 +68,29 @@ app.get('/alunos', (req, res) => {
   });
 });
 
+app.get('/bagagem', (req, res) => {
+  const { clima, perfil, duracao } = req.query;
+  const dias = parseInt(duracao) || 1;
+
+  const query = 'SELECT nome_item, quantidade_por_dia FROM itens_bagagem WHERE clima = ? OR perfil = ?';
+
+  connection.query(query, [clima, perfil], (err, results) => {
+    if (err) {
+      return res.status(500).json({ erro: 'Erro ao gerar lista de bagagem' });
+    }
+
+    // Calcula a quantidade final com base nos dias de viagem
+    const listaFinal = results.map(item => ({
+      item: item.nome_item,
+      quantidade: item.quantidade_por_dia * dias
+    }));
+
+    res.json(listaFinal);
+  });
+});
 
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}/`);
 });
+
+// -------------------------------------------------------------------
